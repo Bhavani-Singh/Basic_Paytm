@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken");
 const jwtSecret = require("../config");
+const authMiddleware = require("../middleware/middleware");
 const {userNameSchema, passwordSchema, firstNameSchema, lastNameSchema} = require("../type");
 const { User } = require("../db");
 
@@ -120,6 +121,10 @@ router.post("/signin", async (req, res) => {
 
         return;
     }
+});
+
+router.post("/restricted", authMiddleware, (req, res) => {
+    console.log(req.userId);
 });
 
 module.exports = router;

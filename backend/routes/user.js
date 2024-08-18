@@ -24,7 +24,7 @@ router.post("/signup", async (req, res) => {
         try {
 
             const userAlreadyExist = await User.findOne({username});
-            console.log(userAlreadyExist);
+
             if(userAlreadyExist) {
                 res.status(411).json({
                     message: "user already exist"
@@ -32,19 +32,18 @@ router.post("/signup", async (req, res) => {
                 return;
             }
 
-            const result = await User.create({
+            const user = await User.create({
                                 username,
                                 password,
                                 firstname,
                                 lastname
                             });
 
-            if(result) {
-                // create jwt token
-                let token = jwt.sign({username}, jwtSecret);
+            if(user) {
+            
+                const id = user.id;
+                let token = jwt.sign({id}, jwtSecret);
                 token = "Bearer " + token;
-
-                console.log(token);
 
                 res.status(201).json({
                     token,
@@ -63,7 +62,7 @@ router.post("/signup", async (req, res) => {
         }
         catch(err) {
             res.status(500).json({
-                message: "Error while creating user"
+                message: "Catch Error while creating user" + err
             });
 
             return;
@@ -80,9 +79,7 @@ router.post("/signup", async (req, res) => {
 });
 
 router.post("/signin", (req, res) => {
-    const {username, password } = req.body;
-
-    const result = User.findOne({username});
+    res.send("signin");
 });
 
 module.exports = router;

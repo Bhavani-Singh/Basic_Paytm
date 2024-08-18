@@ -20,7 +20,7 @@ async function authMiddleware(req, res, next) {
         next();
     }
     else {
-        res.status(400).json({
+        res.status(403).json({
             message: "Invalid token"
         })
     }

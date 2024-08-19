@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const jwtSecret = require("../config");
 const authMiddleware = require("../middleware/middleware");
 const {userNameSchema, passwordSchema, firstNameSchema, lastNameSchema} = require("../type");
-const { User } = require("../db");
+const { User, Account } = require("../db");
 
 const router = express.Router();
 
@@ -43,6 +43,16 @@ router.post("/signup", async (req, res) => {
 
             if(user) {
 
+                const amount = 1  + Math.random() * 10000;
+
+                const result = await Account.create({userid: user._id, balance: amount});
+
+                if(!result) {
+                    return res.status(500).json({
+                        message: "error while adding amount"
+                    });
+                }
+
                 const id = user.id;
                 let token = jwt.sign({id}, jwtSecret);
                 token = "Bearer " + token;
@@ -64,7 +74,7 @@ router.post("/signup", async (req, res) => {
         catch(err) {
 
             return res.status(500).json({
-                message: "Catch Error while creating user" + err
+                message: "Error while creating user" + err
             });
 
         }
@@ -99,9 +109,8 @@ router.post("/signin", async (req, res) => {
         const validPassword = bcrypt.compareSync(password, user.password);
 
         if(!validPassword) {
-
             return res.status(401).json({
-                message: "Invalid user name or password"
+                message: "Password Invalid user name or password"
             });
 
         }
@@ -121,12 +130,60 @@ router.post("/signin", async (req, res) => {
         return res.status(411).json({
             message: "Error while logging in"
         });
-        
+
     }
 });
 
-router.post("/restricted", authMiddleware, (req, res) => {
-    console.log(req.userId);
+router.put("/", authMiddleware, async (req, res) => {
+    let {firstname, lastname, password} = req.body;
+    const id = req.userId;
+
+    try {
+        const passwordResult = passwordSchema.safeParse({password});
+        const firstNameResult = firstNameSchema.safeParse({firstname});
+        const lastNameResult = lastNameSchema.safeParse({lastname});
+
+        if(!(firstNameResult.success && lastNameResult.success && passwordResult.success)) {
+            return res.status(411).json({
+                message: "first name or last name or password are invalid"
+            });
+        }
+
+        password = jwt.sign({id}, jwtSecret);
+
+        const result = await User.findOneAndUpdate({_id: req.userId}, {$set: {firstname, lastname, password}});
+
+        if(result) {
+            return res.status(200).json({
+                message: "information updated successfully"
+            });
+        }
+        else {
+            return res.status(411).json({
+                message: "error while updating the user information"
+            });
+        }
+    }
+    catch(error) {
+        return res.status(500).json({
+            message: "error while updating the user information"
+        });
+    }
+    
 });
+
+router.get("/bulk", authMiddleware, async (req, res) => {
+    const user = await User.find({}, "firstname lastname _id");
+    
+    if(user) {
+        return res.status(200).json({
+            user
+        });
+    }
+    
+    return res.status(500).json({
+        message: "error while fetching the users data"
+    })
+})
 
 module.exports = router;

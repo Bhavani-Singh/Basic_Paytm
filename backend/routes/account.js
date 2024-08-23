@@ -31,22 +31,26 @@ router.get("/balance", authMiddleware, async (req, res) => {
 
 
 router.post("/transfer", authMiddleware, async(req, res) => {
+    const session = await mongoose.startSession();
+
     const { to, amount } = req.body;
     
     const sendAmount = parseInt(amount);
 
     const senderId = req.userId;
 
-    const senderAccount = await Account.findOne({userid: senderId});
+    const senderAccount = await Account.findOne({userid: senderId}).session(session);
     const balance = senderAccount.balance;
 
     if(sendAmount < 0) {
+        await session.abortTransaction();
         return res.status(400).json({
             message: "invalid amount"
         });
     }
 
     if(balance < sendAmount) {
+        await session.abortTransaction();
         return res.status(400).json({
             message: "insufficient balance"
         });
@@ -55,6 +59,7 @@ router.post("/transfer", authMiddleware, async(req, res) => {
     const receiverAccount = await Account.findOne({userid: to});
     
     if(!receiverAccount) {
+        await session.abortTransaction();
         return res.status(400).json({
             message: "receiver does not exist"
         });
@@ -63,6 +68,7 @@ router.post("/transfer", authMiddleware, async(req, res) => {
     const amountDebited = await Account.updateOne({userid: senderId}, {$inc: {balance: -sendAmount}});
 
     if(!amountDebited) {
+        await session.abortTransaction();
         return res.status(500).json({
             message: "error while deducting the amount"
         });
@@ -75,6 +81,8 @@ router.post("/transfer", authMiddleware, async(req, res) => {
             message: "transfer successful"
         });
     }
+
+    await session.commitTransaction();
 
     return res.status(500).json({
         message: "transaction failed"

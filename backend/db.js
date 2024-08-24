@@ -2,7 +2,14 @@ const mongoose = require("mongoose");
 const { Schema } = require("zod");
 require("dotenv").config()
 
-mongoose.connect(process.env.DB_URL);
+
+async function connectToDb() {
+    const db = await mongoose.connect(process.env.DB_URL);
+
+    await db.connection.db.admin().command({setParameter: 1, maxTransactionLockRequestTimeoutMillis: 3000});
+}
+
+connectToDb();
 
 const userSchema = new mongoose.Schema({
 

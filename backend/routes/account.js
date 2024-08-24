@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const router = express.Router();
 const authMiddleware = require("../middleware/middleware");
-const { Account, User } = require("../db");
+const { Account } = require("../db");
 
 router.get("/balance", authMiddleware, async (req, res) => {
     const id = req.userId;
@@ -33,6 +33,7 @@ router.get("/balance", authMiddleware, async (req, res) => {
 router.post("/transfer", authMiddleware, async(req, res) => {
     const session = await mongoose.startSession();
 
+    session.startTransaction();
     const { to, amount } = req.body;
     
     const sendAmount = parseInt(amount);
@@ -56,7 +57,7 @@ router.post("/transfer", authMiddleware, async(req, res) => {
         });
     }
     
-    const receiverAccount = await Account.findOne({userid: to});
+    const receiverAccount = await Account.findOne({userid: to}).session(session);
     
     if(!receiverAccount) {
         await session.abortTransaction();
@@ -65,7 +66,7 @@ router.post("/transfer", authMiddleware, async(req, res) => {
         });
     }
 
-    const amountDebited = await Account.updateOne({userid: senderId}, {$inc: {balance: -sendAmount}});
+    const amountDebited = await Account.updateOne({userid: senderId}, {$inc: {balance: -sendAmount}}).session(session);
 
     if(!amountDebited) {
         await session.abortTransaction();
@@ -74,15 +75,15 @@ router.post("/transfer", authMiddleware, async(req, res) => {
         });
     }
 
-    const amountCredited = await Account.updateOne({userid: to}, {$inc: {balance: sendAmount}});
+    const amountCredited = await Account.updateOne({userid: to}, {$inc: {balance: sendAmount}}).session(session);
+
+    await session.commitTransaction();
 
     if(amountCredited) {
         return res.status(200).json({
             message: "transfer successful"
         });
     }
-
-    await session.commitTransaction();
 
     return res.status(500).json({
         message: "transaction failed"

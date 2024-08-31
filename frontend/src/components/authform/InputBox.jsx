@@ -1,9 +1,8 @@
 import PropTypes from "prop-types";
+import React from "react";
 
-function InputBox({label, inputType, placeHolder, inputId, inputValue, setValue}) {
-    function handleOnChange(e) {
-        setValue(e.target.value);
-    }
+const InputBox = React.memo(({label, inputType, placeHolder, inputId, inputValue, setValue}) => {
+    const handleOnChange = React.useCallback(e => setValue(e.target.value), []);
 
     return (
         <div className="flex flex-col gap-3 w-5/6">
@@ -11,7 +10,9 @@ function InputBox({label, inputType, placeHolder, inputId, inputValue, setValue}
             <input className="p-3 outline-[1px] focus:outline-none border rounded-md" type={inputType} id={inputId} placeholder={placeHolder} value={inputValue} onChange={handleOnChange} />
         </div>
     )
-}
+});
+
+InputBox.displayName = "InputBox";
 
 InputBox.propTypes = {
     label: PropTypes.string.isRequired,

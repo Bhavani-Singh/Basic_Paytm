@@ -3,21 +3,33 @@ import SubHeading from "../SubHeading";
 import BottomWarning from "../BottomWarning";
 import InputBox from "../InputBox";
 import Heading from "../Heading"
+import axios from "axios";
 import { useState } from "react";
+import { useAuth } from "./../../../hooks/useAuth";
 
 function Signup() {
-
+    const { login } = useAuth();
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [emailId, setEmailId] = useState("");
     const [password, setPassword] = useState("");
 
     async function handleOnClick() {
-        alert(firstName + " " + lastName + " " + emailId);
+
+        const response = await axios.post("http://localhost:4001/api/v1/user/signup", {
+            username: emailId,
+            firstname: firstName,
+            lastname: lastName,
+            password
+        });
+
+        const token = response.data.token;
         setFirstName("");
         setLastName("");
         setEmailId("");
         setPassword("");
+
+        await login(token);
     }
 
     return (

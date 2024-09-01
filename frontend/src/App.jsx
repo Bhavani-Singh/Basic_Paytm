@@ -1,20 +1,18 @@
 import './App.css'
-import Signin from './pages/Signin';
 import SignupPage from './pages/SignupPage';
 import Dashboard from './pages/Dashboard';
 import SendMoney from './pages/SendMoney';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/signin" element={<Signin />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/send" element={<SendMoney />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      <Route path="/signup" element={<SignupPage />} />
+      <Route path="/signin" element={<SignupPage />} />
+      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/send" element={<SendMoney />} />
+  </Routes>
   )
 }
 

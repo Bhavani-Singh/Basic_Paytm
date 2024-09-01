@@ -1,8 +1,17 @@
+import { useAuth } from "../hooks/useAuth";
+
 
 function Dashboard() {
+    const { logout } = useAuth();
+
+    async function handleOnClick() {
+        await logout();
+    }
+    
     return (
-        <div className="text-3xl font-bold underline">
-            <h1>This is Dashboard page!</h1>
+        <div>
+            <h1 className="text-3xl font-bold underline">This is Dashboard page!</h1>
+            <button onClick={handleOnClick}>Logout</button>
         </div>
     )
 }

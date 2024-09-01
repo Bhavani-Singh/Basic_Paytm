@@ -51,7 +51,7 @@ function Signup() {
                     <InputBox label="Password" inputType="password" inputId="userPassword" inputValue={password} setValue={setPassword}/>
 
                     <Button content="Sign Up" callBack={handleOnClick}/>
-                    <BottomWarning content="Already have an account?" link="Login" route="signin"/>
+                    <BottomWarning content="Already have an account?" link="Sign In" route="signin"/>
                 </div>
                 
             </div>

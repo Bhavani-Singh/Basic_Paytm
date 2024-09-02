@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Heading from "../Heading";
 import InputBox from "../InputBox";
 import SubHeading from "../SubHeading";
@@ -13,7 +13,7 @@ function Signin() {
     const [emailId, setEmailId] = useState("");
     const [password, setPassword] = useState("");
 
-    async function handleOnClick() {
+    const handleOnClick = useCallback(async () => {
         const response = await axios.post("http://localhost:4001/api/v1/user/signin", {
             username: emailId,
             password
@@ -24,7 +24,7 @@ function Signin() {
         setPassword("");
 
         await login(token);
-    }
+    }, []);
 
     return (
         <div className="w-[100dvw] h-[100dvh] overflow-y-auto flex justify-center items-center bg-gray-200">

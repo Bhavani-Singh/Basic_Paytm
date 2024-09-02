@@ -4,7 +4,7 @@ import BottomWarning from "../BottomWarning";
 import InputBox from "../InputBox";
 import Heading from "../Heading"
 import axios from "axios";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useAuth } from "./../../../hooks/useAuth";
 
 function Signup() {
@@ -14,7 +14,7 @@ function Signup() {
     const [emailId, setEmailId] = useState("");
     const [password, setPassword] = useState("");
 
-    async function handleOnClick() {
+    const handleOnClick = useCallback(async () => {
 
         const response = await axios.post("http://localhost:4001/api/v1/user/signup", {
             username: emailId,
@@ -30,7 +30,7 @@ function Signup() {
         setPassword("");
 
         await login(token);
-    }
+    }, []);
 
     return (
         

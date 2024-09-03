@@ -43,8 +43,10 @@ router.post("/signup", async (req, res) => {
 
             if(user) {
 
-                const amount = 1  + Math.random() * 10000;
-
+                let amount = 1  + Math.random() * 10000;
+                amount = amount.toFixed(2);
+                amount = parseFloat(amount);
+                
                 const result = await Account.create({userid: user._id, balance: amount});
 
                 if(!result) {

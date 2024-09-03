@@ -7,6 +7,7 @@ import SearchBox from "./SearchBox";
 import Avatar from "./Avatar";
 import UserName from "./UserName";
 import SendMoneyButton from "./SendMoneyButton";
+import { useNavigate } from "react-router-dom";
 
 function DashBoard() {
     const { user } = useAuth();
@@ -14,6 +15,7 @@ function DashBoard() {
     const [userBalance, setUserBalance] = useState("");
     const [search, setSearch] = useState("");
     const [users, setUsers] = useState([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function fetchUserData() {
@@ -70,7 +72,7 @@ function DashBoard() {
 
                 <div className="flex flex-col gap-3">
                     <h1 className="text-2xl font-bold">Users:</h1>
-                    <SearchBox callBack={handleOnChange} />
+                    <SearchBox value={search} callBack={handleOnChange} />
                 </div>
                 
                 <div className="flex flex-col gap-4">
@@ -82,7 +84,7 @@ function DashBoard() {
                                     <UserName firstName={user.firstname} />
                                 </div>
                                 
-                                <SendMoneyButton callBack={() => {}} />
+                                <SendMoneyButton callBack={() => { navigate("/send", {state:{receiverId: user._id, firstName: user.firstname}})}} />
                             </div>
                         )
                     })}

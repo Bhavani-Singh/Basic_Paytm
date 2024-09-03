@@ -30,7 +30,7 @@ function Signup() {
         setPassword("");
 
         await login(token);
-    }, []);
+    }, [emailId, firstName, lastName, password, login]);
 
     return (
         

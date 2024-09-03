@@ -172,18 +172,43 @@ router.put("/", authMiddleware, async (req, res) => {
     
 });
 
+router.get("/populate", authMiddleware, async(req, res) => {
+    const id = req.userId;
+
+    const user = await User.findById(id, "firstname");
+    const firstname = user.firstname;
+    const userAccount = await Account.findOne({userid: id}, "balance");
+    const balance = userAccount.balance;
+    
+    if(!user) {
+        return res.status(500).json({
+            message: "error while fetching the user information"
+        });
+    }
+
+    return res.status(200).json({
+        firstname,
+        balance
+    })
+})
+
 router.get("/bulk", authMiddleware, async (req, res) => {
     const filter = req.query.filter || "";
+    const id = req.userId;
+
     const user = await User.find({
+        _id: { $ne: id },
         $or: [
             {
                 firstname: {
-                    $regex: filter
+                    $regex: filter,
+                    $options: "i"
                 }
             },
             {
                 lastname: {
-                    $regex: filter
+                    $regex: filter,
+                    $options: "i"
                 }
             }
         ]

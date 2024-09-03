@@ -24,7 +24,7 @@ function Signin() {
         setPassword("");
 
         await login(token);
-    }, []);
+    }, [emailId, password, login]);
 
     return (
         <div className="w-[100dvw] h-[100dvh] overflow-y-auto flex justify-center items-center bg-gray-200">
